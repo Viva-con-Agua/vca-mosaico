@@ -40,11 +40,12 @@ $(function() {
 });
     </script>
     
-    <link rel="stylesheet" href="rs/mosaico-libs-and-tinymce.min.css?v=__VERSION__" />
+    <link rel="stylesheet" href="rs/mosaico-libs-and-tinymce.min.css?v=__VERSION__" />    
     <link rel="stylesheet" href="rs/mosaico-material.min.css?v=__VERSION__" />
   </head>
   <body class="mo-standalone">
-
-
+    <!-- added this script to allow iframe resize-->
+    <!-- lowest element tagged with "data-iframe-height" will be used to determine iframe height-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.0.4/iframeResizer.contentWindow.min.js"></script>  
   </body>
 </html>

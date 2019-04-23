@@ -107,6 +107,8 @@
         ko.applyBindings(viewModel);
       });
     </script>
+    <!--added this script to allow iframe resize-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.0.4/iframeResizer.contentWindow.min.js"></script>
     <style>
 body {
   font-family: "trebuchet ms",arial,sans-serif;
@@ -183,7 +185,7 @@ a, a:link, a:visited {
     <!-- /ko -->
     </div>
     <!-- /ko -->
-    <div class="content" style="background-color: white; margin-top: -20px; padding-top: 15px; background-origin: border; padding-bottom: 2em">
+    <div data-iframe-height class="content" style="background-color: white; margin-top: -20px; padding-top: 15px; background-origin: border; padding-bottom: 2em">
     <h3>Choose a master template</h3>
     <div data-bind="foreach: templates">
       <div class="template template-xx" style="" data-bind="attr: { class: 'template template-'+name }">
