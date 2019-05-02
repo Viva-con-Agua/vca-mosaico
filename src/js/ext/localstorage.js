@@ -83,7 +83,7 @@ var lsCommandPluginFactory = function(md, emailProcessorBackend) {
         }
       }
     };
-    /*  old download
+      // old download
     downloadCmd.execute = function() {
       downloadCmd.enabled(false);
       viewModel.notifier.info(viewModel.t("Downloading..."));
@@ -92,16 +92,16 @@ var lsCommandPluginFactory = function(md, emailProcessorBackend) {
       global.document.getElementById('downloadForm').setAttribute("action", postUrl);
       global.document.getElementById('downloadForm').submit();
       downloadCmd.enabled(true);
-    };*/
+    };
 
     //hijacked download function -> html is now sent to parent frame
-    downloadCmd.execute = function() {
-      viewModel.notifier.info(viewModel.t("Copied to parent frame"));
-      viewModel.exportHTMLtoTextarea('#downloadHtmlTextarea');
-      var htmlCode=$("#downloadHtmlTextarea").val();
-      //send to parent window (for iframe use)
-      window.parentIFrame.sendMessage(htmlCode);
-    };
+    // downloadCmd.execute = function() {
+    //   viewModel.notifier.info(viewModel.t("Copied to parent frame"));
+    //   viewModel.exportHTMLtoTextarea('#downloadHtmlTextarea');
+    //   var htmlCode=$("#downloadHtmlTextarea").val();
+    //   //send to parent window (for iframe use)
+    //   window.parentIFrame.sendMessage(htmlCode);
+    // };
 
     viewModel.save = saveCmd;
     viewModel.test = testCmd;

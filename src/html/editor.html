@@ -21,10 +21,34 @@ $(function() {
   if (basePath.lastIndexOf('#') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('#'));
   if (basePath.lastIndexOf('?') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('?'));
   if (basePath.lastIndexOf('/') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('/'));
+
   var plugins;
-  // A basic plugin that expose the "viewModel" object as a global variable.
-  // plugins = [function(vm) {window.viewModel = vm;}];
-  var ok = Mosaico.init({
+  plugins = [
+    function (viewModel) {
+      console.log("Plugin hook");
+
+      var saveCmd = {
+        name: 'Zwischenspeichern',
+        enabled: ko.observable(true)
+      };
+
+      saveCmd.execute = function () {
+        saveCmd.enabled(false);
+
+        // Here is the Mosaico data
+        var html = viewModel.exportHTML();
+        var json_data = viewModel.exportJSON();
+        var meta = viewModel.exportMetadata();
+        console.log(html);
+        saveCmd.enabled(true);
+        console.log("Executed save action");
+      };
+
+      viewModel.save = saveCmd;
+    }
+  ];
+
+  Mosaico.start({
     imgProcessorBackend: basePath+'/img/',
     emailProcessorBackend: basePath+'/dl/',
     titleToken: "MOSAICO Responsive Email Designer",
@@ -32,20 +56,16 @@ $(function() {
       url: basePath+'/upload/',
       // messages??
     }
-  }, plugins);
-  if (!ok) {
-    console.log("Missing initialization hash, redirecting to main entrypoint");
-    document.location = ".";
-  }
+  }, "templates/versafix-1/template-versafix-1.html", undefined /* metadata */, undefined /* model */, plugins);
 });
     </script>
-    
-    <link rel="stylesheet" href="rs/mosaico-libs-and-tinymce.min.css?v=__VERSION__" />    
+
+    <link rel="stylesheet" href="rs/mosaico-libs-and-tinymce.min.css?v=__VERSION__" />
     <link rel="stylesheet" href="rs/mosaico-material.min.css?v=__VERSION__" />
   </head>
   <body class="mo-standalone">
     <!-- added this script to allow iframe resize-->
     <!-- lowest element tagged with "data-iframe-height" will be used to determine iframe height-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.0.4/iframeResizer.contentWindow.min.js"></script>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.0.4/iframeResizer.contentWindow.min.js"></script>
   </body>
 </html>
