@@ -25,7 +25,7 @@ $(function() {
   var plugins;
   plugins = [
     function (viewModel) {
-      console.log("Plugin hook");
+      console.log("Plugin hook called.");
 
       var saveCmd = {
         name: 'Zwischenspeichern',
@@ -36,12 +36,23 @@ $(function() {
         saveCmd.enabled(false);
 
         // Here is the Mosaico data
-        var html = viewModel.exportHTML();
-        var json_data = viewModel.exportJSON();
-        var meta = viewModel.exportMetadata();
-        console.log(html);
+        var mosaicoDataMessage = {
+          messageType: "MosaicoState",
+          messageBody: {
+            html: viewModel.exportHTML(),
+            jsonData: viewModel.exportJSON(),
+            meta:  viewModel.exportMetadata()
+         }
+        };
+
+        if('parentIFrame' in window) {
+          window.parentIFrame.sendMessage(mosaicoDataMessage);
+          viewModel.notifier.success(viewModel.t("Succesfully sent current state to parent."));
+        } else {
+          viewModel.notifier.error(viewModel.t("Could not find parent for iFrame. Maybe Mosaico was not loaded in an iFrame with iFrameResizer plugin."));
+        }
+
         saveCmd.enabled(true);
-        console.log("Executed save action");
       };
 
       viewModel.save = saveCmd;
