@@ -1,82 +1,102 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=1024, initial-scale=1">
 
-    <link rel="canonical" href="http://mosaico.io" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="http://mosaico.io"/>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
 
     <script src="rs/mosaico-libs-and-tinymce.min.js?v=__VERSION__"></script>
     <script src="rs/mosaico.min.js?v=__VERSION__"></script>
+
     <script>
-$(function() {
-  if (!Mosaico.isCompatible()) {
-    alert('Update your browser!');
-    return;
-  }
-  // var basePath = window.location.href.substr(0, window.location.href.lastIndexOf('/')).substr(window.location.href.indexOf('/','https://'.length));
-  var basePath = window.location.href;
-  if (basePath.lastIndexOf('#') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('#'));
-  if (basePath.lastIndexOf('?') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('?'));
-  if (basePath.lastIndexOf('/') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('/'));
+      var iFrameResizer = {
+        onMessage: function (messageData) {
+          if (!messageData.message) {
+            console.error("Message property missing in messageData object.");
+            return;
+          }
 
-  var plugins;
-  plugins = [
-    function (viewModel) {
-      console.log("Plugin hook called.");
+          if (messageData.message.messageType !== "MosaicoRequestInit") {
+            console.log("MessageType property missing in messageData.message object.");
+            return;
+          }
 
-      var saveCmd = {
-        name: 'Zwischenspeichern',
-        enabled: ko.observable(true)
-      };
+          var meta;
+          var jsonData;
+          if(messageData.message.payload && messageData.message.payload.meta && messageData.message.payload.jsonData) {
+            meta = JSON.parse(messageData.message.payload.meta);
+            jsonData = JSON.parse(messageData.message.payload.jsonData);
+          }
 
-      saveCmd.execute = function () {
-        saveCmd.enabled(false);
+          if (!Mosaico.isCompatible()) {
+            alert('Update your browser!');
+            return;
+          }
+          // var basePath = window.location.href.substr(0, window.location.href.lastIndexOf('/')).substr(window.location.href.indexOf('/','https://'.length));
+          var basePath = window.location.href;
+          if (basePath.lastIndexOf('#') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('#'));
+          if (basePath.lastIndexOf('?') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('?'));
+          if (basePath.lastIndexOf('/') > 0) basePath = basePath.substr(0, basePath.lastIndexOf('/'));
 
-        // Here is the Mosaico data
-        var mosaicoDataMessage = {
-          messageType: "MosaicoState",
-          messageBody: {
-            html: viewModel.exportHTML(),
-            jsonData: viewModel.exportJSON(),
-            meta:  viewModel.exportMetadata()
-         }
-        };
+          var plugins;
+          plugins = [
+            function (viewModel) {
+              console.log("Plugin hook called.");
 
-        if('parentIFrame' in window) {
-          window.parentIFrame.sendMessage(mosaicoDataMessage);
-          viewModel.notifier.success(viewModel.t("Succesfully sent current state to parent."));
-        } else {
-          viewModel.notifier.error(viewModel.t("Could not find parent for iFrame. Maybe Mosaico was not loaded in an iFrame with iFrameResizer plugin."));
+              var saveCmd = {
+                name: 'Zwischenspeichern',
+                enabled: ko.observable(true)
+              };
+
+              saveCmd.execute = function () {
+                saveCmd.enabled(false);
+
+                // Here is the Mosaico data
+                var mosaicoDataMessage = {
+                  messageType: "MosaicoState",
+                  payload: {
+                    html: viewModel.exportHTML(),
+                    jsonData: viewModel.exportJSON(),
+                    meta: viewModel.exportMetadata()
+                  }
+                };
+
+                if ('parentIFrame' in window) {
+                  window.parentIFrame.sendMessage(mosaicoDataMessage);
+                  viewModel.notifier.success(viewModel.t("Succesfully sent current state to parent."));
+                } else {
+                  viewModel.notifier.error(viewModel.t("Could not find parent for iFrame. Maybe Mosaico was not loaded in an iFrame with iFrameResizer plugin."));
+                }
+
+                saveCmd.enabled(true);
+              };
+
+              viewModel.save = saveCmd;
+            }
+          ];
+
+          Mosaico.start({
+            imgProcessorBackend: basePath + '/img/',
+            emailProcessorBackend: basePath + '/dl/',
+            titleToken: "MOSAICO Responsive Email Designer",
+            fileuploadConfig: {
+              url: basePath + '/upload/',
+              // messages??
+            }
+          }, "templates/versafix-1/template-versafix-1.html", meta /* metadata */, jsonData /* model */, plugins);
         }
-
-        saveCmd.enabled(true);
-      };
-
-      viewModel.save = saveCmd;
-    }
-  ];
-
-  Mosaico.start({
-    imgProcessorBackend: basePath+'/img/',
-    emailProcessorBackend: basePath+'/dl/',
-    titleToken: "MOSAICO Responsive Email Designer",
-    fileuploadConfig: {
-      url: basePath+'/upload/',
-      // messages??
-    }
-  }, "templates/versafix-1/template-versafix-1.html", undefined /* metadata */, undefined /* model */, plugins);
-});
+      }
     </script>
 
-    <link rel="stylesheet" href="rs/mosaico-libs-and-tinymce.min.css?v=__VERSION__" />
-    <link rel="stylesheet" href="rs/mosaico-material.min.css?v=__VERSION__" />
-  </head>
-  <body class="mo-standalone">
-    <!-- added this script to allow iframe resize-->
-    <!-- lowest element tagged with "data-iframe-height" will be used to determine iframe height-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.0.4/iframeResizer.contentWindow.min.js"></script>
-  </body>
+    <link rel="stylesheet" href="rs/mosaico-libs-and-tinymce.min.css?v=__VERSION__"/>
+    <link rel="stylesheet" href="rs/mosaico-material.min.css?v=__VERSION__"/>
+</head>
+<body class="mo-standalone">
+<!-- added this script to allow iframe resize-->
+<!-- lowest element tagged with "data-iframe-height" will be used to determine iframe height-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.0.4/iframeResizer.contentWindow.min.js"></script>
+</body>
 </html>
